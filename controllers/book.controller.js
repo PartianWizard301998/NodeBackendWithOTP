@@ -53,3 +53,69 @@ export const deleteBook = async (req, res, next) =>{
         
     }
 }
+
+//Column based Serch
+// export const searchBook = async (req, res, next) =>{
+
+//     try {
+//         const {bookName, bookCategory, bookAuther} = req.query;
+//         console.log(req.query);
+
+//         // Build the query object based on available filters
+//         let query = {};
+
+//         if (bookName) {
+//         query.bookName = { $regex: bookName, $options: 'i' };  // Case-insensitive search
+//         }
+
+//         if (bookAuther) {
+//         query.bookAuther = { $regex: bookAuther, $options: 'i' };
+//         }
+        
+//         if (bookCategory) {
+//         query.bookCategory = bookCategory;
+//         }
+
+//         const books = await Book.find(query);
+//         if(books){
+//             return next(CreateSuccess(200, "Books...", books));
+//         }else{
+//             return next(CreateError(404, "Book Not available with Given search"));
+//         }
+       
+        
+//     } catch (error) {
+//         return next(CreateError(500, "Internal Server Error"));
+//     }
+// }
+
+export const searchBook = async (req, res, next) =>{
+
+    try {
+        const {query} = req.query;
+        //console.log(req.query);
+        // Check if the query parameter exists, otherwise return all books
+        if (!query) {
+            const books = await Book.find();
+            return next (CreateSuccess(200, "Books", books));
+        }
+
+        const books = await Book.find({
+            $or: [
+                {bookName : { $regex: query, $options: 'i'}},
+                {bookCategory : { $regex : query, $options: 'i'}},
+                {bookAuther: { $regex: query, $options: 'i'}}
+            ]
+        });
+
+        if(books && books.length > 0){
+            return next (CreateSuccess(200, "Books", books));
+        }else{
+            return next (CreateError(400, "Books not found"));
+        }
+    
+    } catch (error) {
+        console.log(error);
+        return next(CreateError(500, "Internal Server Error"));
+    }
+}

@@ -2,15 +2,15 @@
 This routes for getAll user and Get user by ID we will protect this 2 routes by using JWT token we genrated.
 So we can handel the User Session
 ---------------------------------------------------------------------------------------------------------------------------------------*/
-// import { CreateError } from "../utils/error.js"
-// import { CreateSuccess } from "../utils/success.js";
+import { CreateError } from "../utils/error.js"
+import { CreateSuccess } from "../utils/success.js";
 import User from '../models/User.js';
 
 export const getAllUser = async(req, res, next) =>{
 try {
     const users = await User.find(); 
     //return next(createSuccess(200, "All users", users))
-    console.log(users);
+    //console.log(users);
     return res.send({"status" : true, "message" : "Users fetched Successfully", "status-code" : 200, users});
     
 } catch (error) {

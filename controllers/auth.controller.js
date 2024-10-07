@@ -45,7 +45,7 @@ export const registerUser = async (req, res, next) =>{
                 await newUser.save();
                 
                 const mailOptions = {
-                    from: 'vaibhavbhute001@gmail.com',
+                    from: 'vaibsprotfolio1998@gmail.com',
                     to: req.body.email,
                     subject: 'Library Account Verification OTP',
                     html: `
@@ -96,6 +96,7 @@ export const registerAdmin = async (req, res, next) =>{
 
     try {
         const user = await User.findOne({email : req.body.email});
+
         if(user){
             return next(CreateError(409, "Email Already Exist"));
             //return res.send({"status" : false, "message" : "Email Already Exist", "status-code" : 409});
@@ -113,6 +114,8 @@ export const registerAdmin = async (req, res, next) =>{
                 const salt = await bcrypt.genSalt(10);
                 const hashPassword = await bcrypt.hash(req.body.password, salt);
 
+                const otp = generateOTP();
+
                 const newUser = new User({
                     firstName : req.body.firstName,
                     lastName : req.body.lastName,
@@ -121,12 +124,50 @@ export const registerAdmin = async (req, res, next) =>{
                     password: hashPassword,
                     isAdmin : true,
                     roles:role,
+                    otp : otp,
                 });
                 await newUser.save();
+
+                const mailOptions = {
+                    from: 'vaibsprotfolio1998@gmail.com',
+                    to: req.body.email,
+                    subject: 'Library Account Verification OTP',
+                    html: `
+        
+                        <html>
+                        <head>
+                            <title>Library Account Verification OTP</title>
+                        </head>
+                        <body>
+                            <h1>OTP Verification Request</h1>
+                            <p>Dear ${req.body.userName},</p>
+                            <p>To Process with your account, we request you to please verify the OTP (One Time Password) for login to the application.
+                            Tha additional security measure ensures the protection of your account and data.</p>
+                            <p>Thank You,</p>
+
+                            <h4>Please find below OTP for your referance</h4>
+                            <h2>${otp}</h2>
+                    
+                        </body>
+                        </html>
+                        `
+                };
+        
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.log("Error: ", error.message)
+                        return res.send({"status" : false, "message" : "Something went wrong while sendng email.", "status-code" : 500});
+                    } else {
+                       return res.send({"status" : true, "message" : "The OTP has been sent to your registered email.", "status-code" : 200});
+
+                    }
+                });       
+                 }
+
                 return next(CreateSuccess(200, "Admin Registered Successfully."));
                 //return res.send({"status" : true, "message" : "Admin Registered Successfully.", "status-code" : 200});
          }
-        }
+        
     } catch (error) {
         return next(CreateError(500, "Something went Wrong"));
         //return res.send({"status" : false, "message" : "Something went Wrong", "status-code" : 500});
@@ -158,12 +199,12 @@ export const sendEmail = async (req, res, next) => {
     const mailTransporter = nodemailer.createTransport({
         service : "gmail",
         auth : {
-            user : "vaibhavbhute001@gmail.com",
-            pass : "dsmyzxcovbgequrf"
+            user : "vaibsprotfolio1998@gmail.com",
+            pass : "ubqp pkry pqde tihz"
         }
     });
     let mailDetails ={
-        from : "vaibhavbhute001@gmail.com",
+        from : "vaibsprotfolio1998@gmail.com",
         to : email,
         subject : "Reset Password!!",
         html : `
@@ -199,7 +240,6 @@ export const sendEmail = async (req, res, next) => {
         }
     })
 }
-
 
 export const resetPass = async (req, res, next) =>{
     const token = req.body.token;
@@ -251,7 +291,7 @@ export const Login = async (req, res, next) =>{
             {id:user._id, isAdmin: user.isAdmin, roles:roles},
             process.env.JWT_SECRET_KEY
         )
-        console.lo(token);
+        console.log(token);
         res.cookie("access_token", token, {httpOnly: true})
         .status(200)
         .json({
@@ -262,6 +302,7 @@ export const Login = async (req, res, next) =>{
         })
         
     } catch (error) {
+        console.log(error);
         return next(CreateError(500, "Something went Wrong"));
     }
 
@@ -296,7 +337,94 @@ export const verifyOTP = async ( req, res, next) =>{
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'vaibhavbhute001@gmail.com',
-        pass: 'dsmyzxcovbgequrf'
+        user: 'vaibsprotfolio1998@gmail.com',
+        pass: 'ubqp pkry pqde tihz'
     }
 });
+
+//Column based search
+// export const searchUser = async (req, res, next) =>{
+
+//     try {
+//         const {firstName,lastName, userName, email} = req.query;
+//         //console.log(email);
+
+//         let query = {};
+
+//         if(firstName){
+//             query.firstName = { $regex : firstName, $options: 'i'};
+//         }
+
+//         if(lastName){
+//             query.lastName = { $regex : lastName, $options: 'i'};
+//         }
+
+//         if(userName){
+//             query.userName = { $regex : userName, $options: 'i'};
+//         }
+
+//         if(email){
+//             query.email = { $regex : email, $options: 'i'};
+//         }
+
+//         const users = await User.find(query);
+//         //console.log(users)
+
+//         if(users && users.length > 0){
+//             return next (CreateSuccess(200, "Users", users));
+//         //    return res.status(200).json({
+//         //     message: "Users found...",
+//         //     data: users
+//         // });
+//         }else{
+//             return next (CreateError(400, "Users not found"));
+//             // return res.status(404).json({
+//             //     message: "User not available with given search criteria"
+//             // });
+//         }
+//     } catch (error) {
+
+//         console.log(error);
+//         return next(CreateError(500, "Internal Server Error"));
+//         // return res.status(500).json({
+//         //     message: "Internal Server Error"
+//         // });
+        
+//     }
+  
+// }
+
+//String based search
+export const searchUser = async (req, res, next) =>{
+
+    try {
+        const {query} = req.query;
+        //console.log(req.query);
+         // Check if the query parameter exists, otherwise return all books
+        if (!query) {
+            const users = await User.find();
+            return next (CreateSuccess(200, "Users", users));
+        }
+
+          // Perform search across multiple fields (title, author, category)
+        const users = await User.find({
+            $or: [
+            { firstName: { $regex: query, $options: 'i' } },
+            { lastName: { $regex: query, $options: 'i' } },
+            { userName: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } }
+            ]
+        });
+
+        if(users && users.length > 0){
+            return next (CreateSuccess(200, "Users", users));
+        }else{
+            return next (CreateError(400, "Users not found"));
+        }
+
+    }catch (error) {
+        console.log(error);
+        return next(CreateError(500, "Internal Server Error")); 
+    }
+  
+}
