@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 import mongoose from 'mongoose';
 import Role from "../models/Role.js";
-
+import Book from "../models/Book.js";
 const userSchema = mongoose.Schema(
     {
         firstName:{
@@ -44,9 +44,13 @@ const userSchema = mongoose.Schema(
             default: false 
         },        
         roles:{
-            type: [Schema.Types.ObjectId],
+            type: [mongoose.Schema.Types.ObjectId],
             required:true,
             ref: Role
+        },
+        issuedBooks:{
+            type: [mongoose.Schema.Types.ObjectId],
+            ref : 'Book'
         }
     },
     {

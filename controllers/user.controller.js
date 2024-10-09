@@ -5,10 +5,11 @@ So we can handel the User Session
 import { CreateError } from "../utils/error.js"
 import { CreateSuccess } from "../utils/success.js";
 import User from '../models/User.js';
+import Role from "../models/Role.js";
 
 export const getAllUser = async(req, res, next) =>{
 try {
-    const users = await User.find(); 
+    const users = await User.find().populate('roles', 'Role'); 
     //return next(createSuccess(200, "All users", users))
     //console.log(users);
     return res.send({"status" : true, "message" : "Users fetched Successfully", "status-code" : 200, users});
@@ -22,7 +23,7 @@ try {
 export const getById = async(req, res, next) =>{
 try {
 
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate('issuedBooks');
     if(!user){
         //return next(createError(404, "User not found."));
         return res.send({"status" : false, "message" : "User not found.", "status-code" : 404});
@@ -35,4 +36,5 @@ try {
 
 }
 }
+
 

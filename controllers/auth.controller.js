@@ -6,6 +6,8 @@ import { CreateError } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import userToken from '../models/userToken.js';
+import Book from '../models/Book.js';
+import { json } from 'express';
 
 //Registration Controller
 export const registerUser = async (req, res, next) =>{
@@ -402,7 +404,7 @@ export const searchUser = async (req, res, next) =>{
         //console.log(req.query);
          // Check if the query parameter exists, otherwise return all books
         if (!query) {
-            const users = await User.find();
+            const users = await User.find().populate('issuedBooks');
             return next (CreateSuccess(200, "Users", users));
         }
 
@@ -427,4 +429,31 @@ export const searchUser = async (req, res, next) =>{
         return next(CreateError(500, "Internal Server Error")); 
     }
   
+}
+
+
+export const orderBook = async (req, res, next) =>{
+    try {
+
+        const {userId, bookId } = req.body;
+        
+        const user = await User.findById(userId).populate('issuedBooks');
+        
+
+        if (user.issuedBooks.length >= 3) {
+            return next(CreateError(400, "Cannot issue more than 3 Books"));
+        } 
+
+        user.issuedBooks.push(bookId);
+        await user.save();
+
+         // Populate the issuedBooks field again to return full book details
+        // const updatedUser = await User.findById(userId).populate('issuedBooks');
+
+        return next(CreateSuccess(200, "Book Issued Successfully",user));
+
+    } catch (error) {
+        console.log(error);
+        return next(CreateError(500, "Internal Server Error")); 
+    }
 }
