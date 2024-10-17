@@ -27,11 +27,11 @@ const bookSchema = mongoose.Schema(
         availability:{
             type:Number,
         },
-        
+        issuedDate:{
+            type : Date,
+            default : new Date()
+        }
     },
-    {
-        timestamps: true
-    }
 );
 
 export default mongoose.model("Book", bookSchema);

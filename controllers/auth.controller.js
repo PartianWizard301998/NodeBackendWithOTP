@@ -444,6 +444,11 @@ export const orderBook = async (req, res, next) =>{
             return next(CreateError(400, "Cannot issue more than 3 Books"));
         } 
 
+        // const book = {
+        //     bookId,
+        //     issuedDate :  Date
+        // }
+        console.log(user.issuedBooks);
         user.issuedBooks.push(bookId);
         await user.save();
 

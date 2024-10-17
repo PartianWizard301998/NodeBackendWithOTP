@@ -50,7 +50,8 @@ const userSchema = mongoose.Schema(
         },
         issuedBooks:{
             type: [mongoose.Schema.Types.ObjectId],
-            ref : 'Book'
+            ref : 'Book',
+            issuedAt : new Date()
         }
     },
     {
